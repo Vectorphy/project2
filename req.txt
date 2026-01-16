@@ -1,0 +1,47 @@
+# --- Data Extraction & APIs ---
+# For pulling GDP, Inflation, and other macro indicators directly from World Bank
+wbgapi==1.0.12
+# For retrieving financial data (Gold, Oil, Currencies)
+yfinance==0.2.36
+# For Federal Reserve Economic Data (FRED) access
+pandas-datareader==0.10.0
+# For UN Comtrade API interactions (Trade Data)
+comtradeapicall==1.0.0
+# For HTTP requests (needed for custom API endpoints like GPR Index)
+requests==2.31.0
+
+# --- Data Manipulation & Cleaning ---
+# The backbone for all dataframes and handling missing values (Interpolation)
+pandas==2.2.0
+# Mathematical operations for high-performance array handling
+numpy==1.26.3
+# For reading/writing Excel files (if manual data entry is needed)
+openpyxl==3.1.2
+
+# --- Econometrics & Statistical Modeling ---
+# Core library for regression, DiD, and statistical tests (T-tests, ANOVA)
+statsmodels==0.14.1
+# For structural equation modeling and advanced causal inference
+linearmodels==5.3
+# For Time-Series Forecasting (ARIMA, Auto-ARIMA)
+pmdarima==2.0.4
+# Scientific computing library (needed for optimization in models)
+scipy==1.11.4
+
+# --- Machine Learning (Optional for Forecasting) ---
+# For Random Forest or SVR if you explore ML-based predictions
+scikit-learn==1.4.0
+
+# --- Visualization ---
+# Base plotting library
+matplotlib==3.8.2
+# Statistical data visualization (Heatmaps, Regression plots)
+seaborn==0.13.1
+# Interactive plots (great for exploring 12-country timelines)
+plotly==5.18.0
+
+# --- Report Generation & Utilities ---
+# For connecting Python to Jupyter Notebooks
+ipykernel==6.29.0
+# For pretty-printing progress bars during long API downloads
+tqdm==4.66.1
