@@ -5,26 +5,26 @@ import seaborn as sns
 import os
 
 # --- Configuration ---
-COUNTRIES = [
-    'ISR', 'USA', 'VNM', 'ETH',  # Directly Involved
-    'DEU', 'POL', 'NGA', 'EGY',  # Indirectly Involved
-    'KOR', 'NOR', 'BGD', 'BRA'   # Control/Uninvolved
-]
-
+# Groups
 DIRECTLY_INVOLVED = ['ISR', 'USA', 'VNM', 'ETH']
+INDIRECTLY_INVOLVED = ['DEU', 'POL', 'NGA', 'EGY']
+CONTROL_UNINVOLVED = ['KOR', 'NOR', 'BGD', 'BRA']
+
+COUNTRIES = DIRECTLY_INVOLVED + INDIRECTLY_INVOLVED + CONTROL_UNINVOLVED
 
 INDICATORS = {
     'NY.GDP.MKTP.KD.ZG': 'GDP_Growth',
     'FP.CPI.TOTL.ZG': 'Inflation',
-    'BX.KLT.DINV.WD.GD.ZS': 'FDI_Inflows'
+    'BX.KLT.DINV.WD.GD.ZS': 'FDI_Inflows',
+    'NE.RSB.GNFS.ZS': 'Trade_Balance_GDP_Pct'
 }
 
-# Conflict Dates based on proposal (Partial data available)
-# Format: Country: [List of War Years]
+# Conflict Dates
 CONFLICT_DATES = {
-    'ISR': [2023, 2024],
-    'ETH': [2020, 2021, 2022]
-    # USA and VNM dates to be added based on proposal details
+    'ISR': [2006, 2014, 2023, 2024],
+    'ETH': [2020, 2021, 2022],
+    'DEU': [2022, 2023, 2024],
+    'POL': [2022, 2023, 2024]
 }
 
 START_YEAR = 2000
@@ -32,30 +32,18 @@ END_YEAR = 2024
 
 def fetch_data():
     print("Fetching data from World Bank API...")
-
-    # Better approach with wbgapi for multiple indicators:
     data_list = []
     for ind_code, ind_name in INDICATORS.items():
         try:
-            # Fetch data using numericTimeKeys=True so years are integers
             d = wb.data.DataFrame(ind_code, COUNTRIES, time=range(START_YEAR, END_YEAR + 1), numericTimeKeys=True)
-
-            # Reset index to get Country as a column (wbgapi returns economy as index)
-            # Melt to long format: id_vars is 'economy', rest are years
             d = d.reset_index().melt(id_vars=['economy'], var_name='Year', value_name=ind_name)
-
-            # Convert Year to int (it might come as string or int depending on wbgapi version, but numericTimeKeys usually gives int cols.
-            # However, melt converts column names to values. If columns were int, values are int.
             d['Year'] = d['Year'].astype(int)
             d.rename(columns={'economy': 'Country'}, inplace=True)
-
-            # Set index for easy joining
             d.set_index(['Country', 'Year'], inplace=True)
             data_list.append(d)
         except Exception as e:
             print(f"Error fetching {ind_name}: {e}")
 
-    # Combine all indicators
     if not data_list:
         raise ValueError("No data fetched.")
 
@@ -89,22 +77,38 @@ def generate_report(df, missing_before, missing_after):
 
         # 2. Descriptive Statistics
         f.write("## 2. Descriptive Statistics\n\n")
-        stats = df.groupby(['Country', 'War_Status'])[['GDP_Growth', 'Inflation']].agg(['mean', 'median', 'std'])
+        # Include all numeric columns in stats
+        cols_to_stat = list(INDICATORS.values())
+        stats = df.groupby(['Country', 'War_Status'])[cols_to_stat].agg(['mean', 'median', 'std'])
         f.write(stats.to_markdown())
         f.write("\n\n")
 
         # 3. Visualization
         f.write("## 3. Visualization\n\n")
-        f.write("![GDP Trends for Directly Involved Countries](gdp_trends.png)\n")
+        f.write("![Comparative Trends](comparative_trends.png)\n")
 
-    # Generate Plot
-    plt.figure(figsize=(12, 6))
-    subset = df[df['Country'].isin(DIRECTLY_INVOLVED)]
-    sns.lineplot(data=subset, x='Year', y='GDP_Growth', hue='Country', marker='o')
-    plt.title('GDP Growth Trends: Directly Involved Countries (2000-2024)')
-    plt.ylabel('GDP Growth (%)')
-    plt.grid(True)
-    plt.savefig('gdp_trends.png')
+    # Generate Plot with 3 Subplots
+    fig, axes = plt.subplots(3, 1, figsize=(12, 18), sharex=True)
+
+    # Define groups and titles
+    groups = [
+        (DIRECTLY_INVOLVED, 'Directly Involved Countries'),
+        (INDIRECTLY_INVOLVED, 'Indirectly Involved Countries'),
+        (CONTROL_UNINVOLVED, 'Control/Uninvolved Countries')
+    ]
+
+    for ax, (group_countries, title) in zip(axes, groups):
+        subset = df[df['Country'].isin(group_countries)]
+        sns.lineplot(data=subset, x='Year', y='GDP_Growth', hue='Country', marker='o', ax=ax)
+        ax.set_title(f'GDP Growth: {title}')
+        ax.set_ylabel('GDP Growth (%)')
+        ax.grid(True)
+        # Add vertical line at 2022
+        ax.axvline(x=2022, color='red', linestyle='--', linewidth=2, label='Global Shift (2022)')
+        # Add legend if not present (hue adds it, but axvline might need handling or just be there)
+
+    plt.tight_layout()
+    plt.savefig('comparative_trends.png')
     plt.close()
     print("Report and chart generated.")
 
@@ -113,28 +117,15 @@ def main():
     df = fetch_data()
 
     # Audit before cleaning
-    # We want to see missing values per country.
-    # Group by Country and count nulls in indicator columns
     missing_before = df.groupby('Country')[list(INDICATORS.values())].apply(lambda x: x.isnull().sum())
 
     # 2. Clean & Sort
-    # Sort
     df = df.sort_values(by=['Country', 'Year'])
 
-    # Interpolation (Linear) - specifically handling gaps for all, ensuring ETH/NGA are covered
-    # We group by country to interpolate within each country's time series
-    # Using transform is cleaner than apply for keeping shape, but transform runs per column.
-    # Alternatively, set index and apply
     df = df.set_index(['Country', 'Year'])
-
-    # Interpolate each group. We use apply because we want to interpolate on the DataFrame group (all cols)
-    # The result of apply on groupby object usually retains the index if the function returns a DF with same index.
     df_interpolated = df.groupby('Country').apply(lambda x: x.interpolate(method='linear').fillna(method='bfill').fillna(method='ffill'))
 
-    # If groupby keys are added to index, drop them.
-    # Check index nlevels
     if df_interpolated.index.nlevels > 2:
-        # Likely it added Country again.
         df_interpolated = df_interpolated.droplevel(0)
 
     df_final = df_interpolated.reset_index()
@@ -148,6 +139,7 @@ def main():
     # 4. Automated Reporting
     generate_report(df_final, missing_before, missing_after)
 
+    df_final.to_csv('processed_data.csv', index=False)
     print("Pipeline completed successfully.")
 
 if __name__ == "__main__":
