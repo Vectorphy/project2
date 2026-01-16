@@ -1,0 +1,56 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{geometry}
+
+\title{Asymmetric Resilience: 12-Country Econometric Study}
+\author{Research Team}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This study performs a comparative econometric analysis of war-induced shocks across 12 countries, categorized into Directly Involved, Indirectly Involved, and Control groups. We test the "Resilience Gap" hypothesis, positing that Third World nations experience deeper economic contractions and slower recovery rates compared to First World nations in the face of geopolitical conflict.
+\end{abstract}
+
+\section{Methodology}
+Our analysis employs a robust data pipeline to fetch and process macroeconomic indicators from the World Bank. We utilize Difference-in-Differences (DiD) logic to compare pre-crisis (2010--2019) and post-crisis (2020--2024) performance. Furthermore, we conduct volatility analysis on inflation rates to understand the transmission of economic instability across different country groups.
+
+\section{Results}
+
+\subsection{Volatility Analysis}
+We examined the distribution of inflation rates across the three country categories to assess economic stability. Figure \ref{fig:volatility} illustrates the inflation volatility.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{charts/inflation_volatility.png}
+    \caption{Inflation Volatility by Country Category}
+    \label{fig:volatility}
+\end{figure}
+
+\subsection{The Resilience Gap}
+To quantify the economic impact of shocks, we compared the mean GDP growth between the pre-crisis and post-crisis periods. Figure \ref{fig:resilience} visualizes this "Resilience Gap" across the 12 nations.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{charts/resilience_gap.png}
+    \caption{Resilience Gap: Mean GDP Growth (Pre vs Post Crisis)}
+    \label{fig:resilience}
+\end{figure}
+
+\subsection{Correlation Analysis}
+We also analyzed the correlation between key macroeconomic indicators (GDP Growth, Inflation, FDI Inflows) within each group to identify structural dependencies.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{charts/correlation_heatmap.png}
+    \caption{Correlation Heatmap by Country Group}
+    \label{fig:correlation}
+\end{figure}
+
+\section{Discussion}
+Our findings suggest significant asymmetries in economic resilience. The correlation analysis reveals potential "Safe Haven" dynamics, where Foreign Direct Investment (FDI) may shift towards uninvolved (Control) nations during periods of global instability. Further research is needed to isolate the causal mechanisms driving these shifts.
+
+\end{document}
