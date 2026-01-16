@@ -139,6 +139,7 @@ def main():
     # 4. Automated Reporting
     generate_report(df_final, missing_before, missing_after)
 
+    df_final.to_csv('processed_data.csv', index=False)
     print("Pipeline completed successfully.")
 
 if __name__ == "__main__":
