@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\title{Asymmetric Resilience: A Comparative Econometric Analysis of War-Induced Shocks}
+\author{Research Agent}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This paper investigates the heterogeneous economic impacts of war...
+\end{abstract}
+
+\section{Introduction}
+Conflict remains a primary driver of development traps...
+
+\section{Data and Methodology}
+We utilize the Correlates of War dataset combined with World Bank economic indicators...
+
+\section{Results}
+
+\subsection{Econometric Analysis}
+Table 1 presents the results from the Fixed Effects models.
+
+\input{REGRESSION_TABLE.tex}
+
+\subsection{Event Study}
+Figure 1 shows the impact of conflict onset on growth.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/event_study.png}
+    \caption{GDP Growth around Conflict Onset}
+    \label{fig:event_study}
+\end{figure}
+
+\subsection{Machine Learning Extensions}
+We apply XGBoost to predict recovery trajectories...
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/feature_importance.png}
+    \caption{Feature Importance for Recovery Prediction}
+    \label{fig:feat_imp}
+\end{figure}
+
+\section{Conclusion}
+Our findings support the hypothesis of asymmetric resilience...
+
+\end{document}
