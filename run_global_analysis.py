@@ -88,12 +88,17 @@ def main():
     logger.info("--- Step 5: Reporting ---")
     reporter = Reporter(clean_df)
 
+    # Comprehensive Plots
+    reporter.plot_data_coverage()
+    reporter.plot_conflict_structure()
+    reporter.plot_gdp_variance()
     reporter.plot_event_study()
     reporter.plot_feature_importance(xgb_model, feature_names)
     reporter.plot_recovery_clusters(clusters_df)
     reporter.plot_trade_clusters(trade_clusters_df)
     reporter.plot_trade_spillover()
     reporter.plot_currency_volatility()
+    reporter.plot_inflation_instability()
 
     reporter.generate_report_md(str(comparison), ml_rmse=rmse)
     reporter.generate_latex()

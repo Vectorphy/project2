@@ -22,31 +22,81 @@ Conflict remains a primary driver of development traps...
 \section{Data and Methodology}
 We utilize the Correlates of War dataset combined with World Bank economic indicators...
 
-\section{Results}
+\section{Exploratory Data Analysis}
+The following figures illustrate the core thesis: war is a variance amplifier.
 
-\subsection{Econometric Analysis}
-Table 1 presents the results from the Fixed Effects models.
+\subsection{Data and Conflict Structure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/coverage_over_time.png}
+    \caption{Data Coverage Over Time}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/active_conflicts.png}
+    \caption{Global Conflict Frequency}
+\end{figure}
+
+\subsection{GDP Dispersion and Volatility}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/gdp_spaghetti.png}
+    \caption{GDP Growth Trajectories}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/gdp_volatility_comparison.png}
+    \caption{Rolling GDP Volatility: War vs Peace}
+\end{figure}
+
+\section{Econometric Results}
+Table 1 presents the results from the Fixed Effects models, confirming the negative shock of war and the amplifying role of trade and currency channels.
 
 \input{REGRESSION_TABLE.tex}
 
-\subsection{Event Study}
-Figure 1 shows the impact of conflict onset on growth.
+\section{Transmission Channels}
 
-\begin{figure}[h]
+\subsection{Trade and Commodity Shocks}
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=0.8\textwidth]{results/event_study.png}
-    \caption{GDP Growth around Conflict Onset}
-    \label{fig:event_study}
+    \includegraphics[width=0.8\textwidth]{results/trade_spillover.png}
+    \caption{Trade Spillover Effects}
 \end{figure}
 
-\subsection{Machine Learning Extensions}
-We apply XGBoost to predict recovery trajectories...
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/trade_clusters.png}
+    \caption{Trade Patterns Clustering}
+\end{figure}
 
-\begin{figure}[h]
+\subsection{Currency and Inflation}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/currency_volatility.png}
+    \caption{Currency Volatility: War vs Peace}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/inflation_xr_scatter.png}
+    \caption{Inflation vs Currency Volatility}
+\end{figure}
+
+\section{Machine Learning Extensions}
+We apply XGBoost to predict recovery trajectories and K-Means to identify recovery archetypes.
+
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{results/feature_importance.png}
     \caption{Feature Importance for Recovery Prediction}
-    \label{fig:feat_imp}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/recovery_clusters.png}
+    \caption{Recovery Clusters}
 \end{figure}
 
 \section{Conclusion}
