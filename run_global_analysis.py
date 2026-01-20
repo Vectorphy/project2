@@ -55,12 +55,19 @@ def main():
     res_baseline = em.run_baseline_model()
     res_hetero = em.run_heterogeneity_model()
     res_recovery = em.run_recovery_model()
+    res_trade = em.run_trade_channel_model()
+    res_spillover = em.run_spillover_model()
 
     results_dict = {
         'Baseline': res_baseline,
         'Heterogeneity': res_hetero,
-        'Recovery': res_recovery
+        'Recovery': res_recovery,
+        'Trade_Channel': res_trade
     }
+
+    # Spillover is on different sample (peace only), so maybe exclude from main comparison table or add separately
+    if res_spillover:
+         results_dict['Spillover'] = res_spillover
 
     comparison = em.save_results(results_dict)
 
@@ -73,6 +80,7 @@ def main():
 
     # Clustering
     clusters_df, kmeans_model = ml.cluster_recovery_trajectories()
+    trade_clusters_df, trade_kmeans = ml.cluster_trade_patterns()
 
     # 5. Reporting
     logger.info("--- Step 5: Reporting ---")
@@ -81,6 +89,8 @@ def main():
     reporter.plot_event_study()
     reporter.plot_feature_importance(xgb_model, feature_names)
     reporter.plot_recovery_clusters(clusters_df)
+    reporter.plot_trade_clusters(trade_clusters_df)
+    reporter.plot_trade_spillover()
 
     reporter.generate_report_md(str(comparison), ml_rmse=rmse)
     reporter.generate_latex()

@@ -37,7 +37,8 @@ class ConflictML:
             'War_Binary', 'War_Intensity', 'Cumulative_Conflict_10y',
             'GDP_Growth_lag1', 'GDP_Growth_lag2', 'Inflation_lag1',
             'Trade_Openness', 'Govt_Expenditure_GDP', 'Log_GDP_PC',
-            'Inflation_Vol_5y', 'Growth_Vol_5y'
+            'Inflation_Vol_5y', 'Growth_Vol_5y',
+            'Food_Imports_Pct', 'Trade_Volatility', 'Global_Conflict_Intensity'
         ]
 
         # Add Income Code
@@ -159,6 +160,32 @@ class ConflictML:
         })
 
         return result, kmeans
+
+    def cluster_trade_patterns(self):
+        """
+        Clusters countries by their trade adjustment patterns (Volatility & Dependency).
+        """
+        logger.info("Clustering Trade Patterns...")
+
+        # Features for clustering: Mean Food Dependency, Trade Volatility
+        # Collapse to country level
+        if 'Food_Imports_Pct' not in self.df.columns:
+            return None, None
+
+        trade_features = self.df.groupby('ISO3')[['Food_Imports_Pct', 'Trade_Volatility', 'Food_Trade_Volatility']].mean().dropna()
+
+        if trade_features.empty:
+            return None, None
+
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(trade_features)
+
+        kmeans = KMeans(n_clusters=4, random_state=42)
+        clusters = kmeans.fit_predict(X_scaled)
+
+        trade_features['Trade_Cluster'] = clusters
+
+        return trade_features.reset_index(), kmeans
 
 if __name__ == "__main__":
     pass

@@ -129,6 +129,26 @@ class DataProcessor:
         self.full_df['Growth_Vol_5y'] = self.full_df.groupby('ISO3')['GDP_Growth'].transform(
             lambda x: x.rolling(window=5, min_periods=3).std()
         )
+        # Trade Volatility
+        if 'Trade_Openness' in self.full_df.columns:
+            self.full_df['Trade_Volatility'] = self.full_df.groupby('ISO3')['Trade_Openness'].transform(
+                lambda x: x.rolling(window=5, min_periods=3).std()
+            )
+
+        if 'Food_Imports_Pct' in self.full_df.columns:
+            self.full_df['Food_Trade_Volatility'] = self.full_df.groupby('ISO3')['Food_Imports_Pct'].transform(
+                lambda x: x.rolling(window=5, min_periods=3).std()
+            )
+
+        # 4b. Global Conflict Intensity (Spillover Feature)
+        # Sum of War_Intensity across all countries for each Year
+        # Create a temp df
+        global_conflict = self.full_df.groupby('Year')['War_Intensity'].sum().rename('Global_Conflict_Intensity')
+        self.full_df = self.full_df.merge(global_conflict, on='Year', how='left')
+
+        # Interaction for Spillover
+        if 'Food_Imports_Pct' in self.full_df.columns:
+             self.full_df['Spillover_Exposure'] = self.full_df['Global_Conflict_Intensity'] * self.full_df['Food_Imports_Pct']
 
         # 5. Recovery Flags
         # Post-Conflict: If t-1 was War and t is Peace.

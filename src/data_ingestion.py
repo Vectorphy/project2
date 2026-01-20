@@ -204,7 +204,10 @@ class WorldBankFetcher:
         'NV.AGR.TOTL.ZS': 'Agri_Value_Added',
         'NV.IND.TOTL.ZS': 'Ind_Value_Added',
         'NV.SRV.TOTL.ZS': 'Serv_Value_Added',
-        'SE.SEC.ENRR': 'School_Enrollment'
+        'SE.SEC.ENRR': 'School_Enrollment',
+        'TM.VAL.FOOD.ZS.UN': 'Food_Imports_Pct',
+        'TX.VAL.FOOD.ZS.UN': 'Food_Exports_Pct',
+        'AG.PRD.CREL.MT': 'Cereal_Production_MT'
     }
 
     def fetch_metadata(self) -> pd.DataFrame:

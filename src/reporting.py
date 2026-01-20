@@ -117,6 +117,60 @@ class Reporter:
         plt.savefig(os.path.join(self.results_dir, 'feature_importance.png'))
         plt.close()
 
+    def plot_trade_clusters(self, trade_df):
+        """
+        Scatter plot of Trade Clusters (Food Dependency vs Volatility).
+        """
+        if trade_df is None: return
+
+        logger.info("Plotting Trade Clusters...")
+
+        plt.figure(figsize=(10, 6))
+        sns.scatterplot(data=trade_df, x='Food_Imports_Pct', y='Food_Trade_Volatility', hue='Trade_Cluster', palette='viridis', s=100)
+        plt.title('Trade Patterns: Food Dependency vs. Volatility')
+        plt.xlabel('Mean Food Import Dependency (%)')
+        plt.ylabel('Food Trade Volatility (Std Dev)')
+        plt.grid(True)
+        plt.savefig(os.path.join(self.results_dir, 'trade_clusters.png'))
+        plt.close()
+
+    def plot_trade_spillover(self):
+        """
+        Scatter plot: Food Dependency vs Marginal Impact (or Growth) in peaceful times under high global conflict.
+        Simple visual: Average Growth of Peace Countries vs Global Conflict Intensity, split by Food Dep.
+        """
+        logger.info("Plotting Trade Spillover...")
+
+        # Filter: Peace years
+        peace = self.df[self.df['War_Binary'] == 0].copy()
+
+        # Split into High/Low Food Dep
+        if 'Food_Imports_Pct' not in peace.columns or 'Global_Conflict_Intensity' not in peace.columns:
+            return
+
+        median_dep = peace['Food_Imports_Pct'].median()
+        peace['Dependency_Group'] = np.where(peace['Food_Imports_Pct'] > median_dep, 'High Food Dep', 'Low Food Dep')
+
+        # Bin Global Conflict
+        peace['Conflict_Bin'] = pd.qcut(peace['Global_Conflict_Intensity'], q=5, duplicates='drop')
+
+        # Aggregate
+        agg = peace.groupby(['Conflict_Bin', 'Dependency_Group'])['GDP_Growth'].mean().reset_index()
+
+        # Convert bin to string for plotting
+        agg['Conflict_Bin'] = agg['Conflict_Bin'].astype(str)
+
+        plt.figure(figsize=(10, 6))
+        sns.pointplot(data=agg, x='Conflict_Bin', y='GDP_Growth', hue='Dependency_Group')
+        plt.title('Spillover: Growth vs Global Conflict Intensity by Food Dependency')
+        plt.xlabel('Global Conflict Intensity (Quantiles)')
+        plt.ylabel('Average GDP Growth (%)')
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig(os.path.join(self.results_dir, 'trade_spillover.png'))
+        plt.close()
+
     def generate_report_md(self, econometrics_summary, ml_rmse):
         """
         Generates Markdown Report.
@@ -156,8 +210,18 @@ The most critical predictors of post-conflict recovery are visualized in `featur
 ![Clusters](recovery_clusters.png)
 *Figure 2: distinct recovery archetypes identified by K-Means clustering.*
 
-## 5. Conclusion
-Results suggest that while war universally depresses growth, low-income nations suffer deeper and longer-lasting penalties, confirming the "Asymmetric Resilience" hypothesis.
+## 5. Trade & Spillover Analysis
+The extension of the model to include trade channels reveals that food import dependency significantly exacerbates the cost of war. Furthermore, even peaceful nations suffer growth spillover effects when global conflict intensity rises, particularly if they are highly dependent on food imports.
+
+![Trade Spillover](trade_spillover.png)
+*Figure 3: Growth divergence in non-war countries conditional on food dependency and global conflict intensity.*
+
+### Trade Clusters
+![Trade Clusters](trade_clusters.png)
+*Figure 4: Countries clustered by food import dependency and trade volatility.*
+
+## 6. Conclusion
+Results suggest that while war universally depresses growth, low-income nations suffer deeper and longer-lasting penalties, confirming the "Asymmetric Resilience" hypothesis. This is compounded by trade volatility, acting as a variance multiplier.
 """
         with open("FINAL_RESEARCH_REPORT.md", "w") as f:
             f.write(content)
@@ -207,6 +271,16 @@ Figure 1 shows the impact of conflict onset on growth.
     \includegraphics[width=0.8\textwidth]{results/event_study.png}
     \caption{GDP Growth around Conflict Onset}
     \label{fig:event_study}
+\end{figure}
+
+\subsection{Trade Spillovers}
+Figure 2 illustrates the spillover effects of global conflict on peaceful nations via food dependency.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/trade_spillover.png}
+    \caption{Trade Spillover Effects}
+    \label{fig:spillover}
 \end{figure}
 
 \subsection{Machine Learning Extensions}

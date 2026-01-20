@@ -113,6 +113,58 @@ class EconometricModeler:
 
         return res
 
+    def run_trade_channel_model(self):
+        """
+        Model 4: Trade Transmission Channel
+        Hypothesis: High food import dependency exacerbates war impact.
+        Growth ~ War_Binary + Food_Imports_Pct + War_Binary * Food_Imports_Pct + Controls
+        """
+        logger.info("Running Trade Channel Model...")
+
+        # Interaction
+        # We need to explicitly create the interaction column if not present
+        if 'War_X_Food_Imp' not in self.df.columns:
+             self.df['War_X_Food_Imp'] = self.df['War_Binary'] * self.df['Food_Imports_Pct']
+
+        exog_vars = ['War_Binary', 'Food_Imports_Pct', 'War_X_Food_Imp', 'Trade_Openness', 'Log_GDP_PC']
+        exog_vars = [v for v in exog_vars if v in self.df.columns]
+
+        model_data = self.df.dropna(subset=['GDP_Growth'] + exog_vars)
+
+        mod = PanelOLS(model_data['GDP_Growth'], model_data[exog_vars], entity_effects=True, time_effects=True, drop_absorbed=True)
+        res = mod.fit(cov_type='clustered', cluster_entity=True)
+
+        return res
+
+    def run_spillover_model(self):
+        """
+        Model 5: Global Spillover (Peaceful Countries Only)
+        Hypothesis: Global conflict intensity hurts peaceful countries with high food dependency.
+        Growth ~ Global_Conflict_Intensity * Food_Imports_Pct + Controls
+        """
+        logger.info("Running Spillover Model...")
+
+        # Filter for Non-War years
+        peace_df = self.df[self.df['War_Binary'] == 0].copy()
+
+        exog_vars = ['Spillover_Exposure', 'Global_Conflict_Intensity', 'Food_Imports_Pct', 'Trade_Openness', 'Log_GDP_PC']
+        exog_vars = [v for v in exog_vars if v in peace_df.columns]
+
+        # Ensure index
+        # PanelOLS needs MultiIndex. If we filtered, index might be preserved.
+
+        model_data = peace_df.dropna(subset=['GDP_Growth'] + exog_vars)
+
+        # Check if enough data
+        if model_data.empty:
+            logger.warning("Not enough data for Spillover Model.")
+            return None
+
+        mod = PanelOLS(model_data['GDP_Growth'], model_data[exog_vars], entity_effects=True, time_effects=True, drop_absorbed=True)
+        res = mod.fit(cov_type='clustered', cluster_entity=True)
+
+        return res
+
     def save_results(self, results_dict):
         """
         Saves regression results to a text file and LaTeX.
