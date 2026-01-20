@@ -40,6 +40,29 @@ class EconometricModeler:
 
         return res
 
+    def run_currency_channel_model(self):
+        """
+        Model 6: Currency Instability Channel
+        Hypothesis: Currency volatility amplifies the growth penalty of war.
+        Growth ~ War_Binary + XR_Volatility + War_Binary * XR_Volatility + Controls
+        """
+        logger.info("Running Currency Channel Model...")
+
+        # Interaction
+        if 'War_X_XR_Vol' not in self.df.columns:
+            # Handle NaNs in XR_Volatility (fill with 0 or mean?) - PanelOLS handles dropping
+            self.df['War_X_XR_Vol'] = self.df['War_Binary'] * self.df['XR_Volatility']
+
+        exog_vars = ['War_Binary', 'XR_Volatility', 'War_X_XR_Vol', 'Trade_Openness', 'Log_GDP_PC']
+        exog_vars = [v for v in exog_vars if v in self.df.columns]
+
+        model_data = self.df.dropna(subset=['GDP_Growth'] + exog_vars)
+
+        mod = PanelOLS(model_data['GDP_Growth'], model_data[exog_vars], entity_effects=True, time_effects=True, drop_absorbed=True)
+        res = mod.fit(cov_type='clustered', cluster_entity=True)
+
+        return res
+
     def run_heterogeneity_model(self):
         """
         Model 2: Heterogeneity by Income Group

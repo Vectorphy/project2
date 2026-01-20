@@ -22,3 +22,7 @@
 ## Hypothesis 6: Global Spillovers
 **Statement:** Global conflict intensity negatively impacts the growth of peaceful nations, specifically those with high food import dependency.
 **Test:** In the non-war sample, the coefficient of `Global_Conflict_Intensity * Food_Imports_Pct` is negative and significant.
+
+## Hypothesis 7: The "Currency Multiplier"
+**Statement:** Currency instability acts as an early and uneven amplifier of war-related economic divergence.
+**Test:** The coefficient of the interaction term `War_Binary * XR_Volatility` is negative and significant in the growth regression.

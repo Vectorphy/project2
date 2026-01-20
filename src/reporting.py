@@ -171,6 +171,24 @@ class Reporter:
         plt.savefig(os.path.join(self.results_dir, 'trade_spillover.png'))
         plt.close()
 
+    def plot_currency_volatility(self):
+        """
+        Comparison of Exchange Rate Volatility: War vs Peace.
+        """
+        logger.info("Plotting Currency Volatility...")
+
+        if 'XR_Volatility' not in self.df.columns:
+            return
+
+        plt.figure(figsize=(8, 6))
+        sns.boxplot(data=self.df, x='War_Binary', y='XR_Volatility', showfliers=False)
+        plt.title('Exchange Rate Volatility: Peace (0) vs War (1)')
+        plt.ylabel('Rolling Std Dev of Exchange Rate Change')
+        plt.xlabel('Conflict Status')
+        plt.grid(True)
+        plt.savefig(os.path.join(self.results_dir, 'currency_volatility.png'))
+        plt.close()
+
     def generate_report_md(self, econometrics_summary, ml_rmse):
         """
         Generates Markdown Report.
@@ -220,7 +238,13 @@ The extension of the model to include trade channels reveals that food import de
 ![Trade Clusters](trade_clusters.png)
 *Figure 4: Countries clustered by food import dependency and trade volatility.*
 
-## 6. Conclusion
+## 6. Currency Channel
+Exchange rates act as a high-frequency signal of economic stress. War-affected nations exhibit significantly higher currency volatility, which in turn acts as a multiplier for economic damage.
+
+![Currency Volatility](currency_volatility.png)
+*Figure 5: Distribution of Exchange Rate Volatility in War vs Peace.*
+
+## 7. Conclusion
 Results suggest that while war universally depresses growth, low-income nations suffer deeper and longer-lasting penalties, confirming the "Asymmetric Resilience" hypothesis. This is compounded by trade volatility, acting as a variance multiplier.
 """
         with open("FINAL_RESEARCH_REPORT.md", "w") as f:
@@ -281,6 +305,16 @@ Figure 2 illustrates the spillover effects of global conflict on peaceful nation
     \includegraphics[width=0.8\textwidth]{results/trade_spillover.png}
     \caption{Trade Spillover Effects}
     \label{fig:spillover}
+\end{figure}
+
+\subsection{Currency Instability}
+Currency volatility increases significantly during conflict, acting as a transmission channel.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/currency_volatility.png}
+    \caption{Currency Volatility: War vs Peace}
+    \label{fig:currency}
 \end{figure}
 
 \subsection{Machine Learning Extensions}

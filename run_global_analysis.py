@@ -57,12 +57,14 @@ def main():
     res_recovery = em.run_recovery_model()
     res_trade = em.run_trade_channel_model()
     res_spillover = em.run_spillover_model()
+    res_currency = em.run_currency_channel_model()
 
     results_dict = {
         'Baseline': res_baseline,
         'Heterogeneity': res_hetero,
         'Recovery': res_recovery,
-        'Trade_Channel': res_trade
+        'Trade_Channel': res_trade,
+        'Currency_Channel': res_currency
     }
 
     # Spillover is on different sample (peace only), so maybe exclude from main comparison table or add separately
@@ -91,6 +93,7 @@ def main():
     reporter.plot_recovery_clusters(clusters_df)
     reporter.plot_trade_clusters(trade_clusters_df)
     reporter.plot_trade_spillover()
+    reporter.plot_currency_volatility()
 
     reporter.generate_report_md(str(comparison), ml_rmse=rmse)
     reporter.generate_latex()

@@ -38,7 +38,8 @@ class ConflictML:
             'GDP_Growth_lag1', 'GDP_Growth_lag2', 'Inflation_lag1',
             'Trade_Openness', 'Govt_Expenditure_GDP', 'Log_GDP_PC',
             'Inflation_Vol_5y', 'Growth_Vol_5y',
-            'Food_Imports_Pct', 'Trade_Volatility', 'Global_Conflict_Intensity'
+            'Food_Imports_Pct', 'Trade_Volatility', 'Global_Conflict_Intensity',
+            'XR_Volatility', 'REER_Volatility'
         ]
 
         # Add Income Code

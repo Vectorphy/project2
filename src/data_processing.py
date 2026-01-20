@@ -150,7 +150,26 @@ class DataProcessor:
         if 'Food_Imports_Pct' in self.full_df.columns:
              self.full_df['Spillover_Exposure'] = self.full_df['Global_Conflict_Intensity'] * self.full_df['Food_Imports_Pct']
 
-        # 5. Recovery Flags
+        # 5. Exchange Rate Features
+        if 'Official_Exchange_Rate' in self.full_df.columns:
+            # Pct Change
+            self.full_df['XR_Change'] = self.full_df.groupby('ISO3')['Official_Exchange_Rate'].pct_change()
+
+            # Volatility (Rolling Std of Change)
+            self.full_df['XR_Volatility'] = self.full_df.groupby('ISO3')['XR_Change'].transform(
+                lambda x: x.rolling(window=5, min_periods=3).std()
+            )
+
+            # Large Depreciation (>20% drop in value, i.e., rate increase > 20%? If LCU/USD, increase is depreciation)
+            # Threshold: 20% depreciation
+            self.full_df['Large_Depreciation'] = (self.full_df['XR_Change'] > 0.20).astype(int)
+
+        if 'REER' in self.full_df.columns:
+             self.full_df['REER_Volatility'] = self.full_df.groupby('ISO3')['REER'].transform(
+                lambda x: x.rolling(window=5, min_periods=3).std()
+            )
+
+        # 6. Recovery Flags
         # Post-Conflict: If t-1 was War and t is Peace.
         # We need to detect switch.
         self.full_df['War_Prev'] = self.full_df.groupby('ISO3')['War_Binary'].shift(1).fillna(0)

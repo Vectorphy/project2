@@ -207,7 +207,9 @@ class WorldBankFetcher:
         'SE.SEC.ENRR': 'School_Enrollment',
         'TM.VAL.FOOD.ZS.UN': 'Food_Imports_Pct',
         'TX.VAL.FOOD.ZS.UN': 'Food_Exports_Pct',
-        'AG.PRD.CREL.MT': 'Cereal_Production_MT'
+        'AG.PRD.CREL.MT': 'Cereal_Production_MT',
+        'PA.NUS.FCRF': 'Official_Exchange_Rate',
+        'PX.REX.REER': 'REER'
     }
 
     def fetch_metadata(self) -> pd.DataFrame:
