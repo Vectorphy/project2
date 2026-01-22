@@ -11,122 +11,103 @@ logger = logging.getLogger(__name__)
 
 class EconometricModeler:
     """
-    Runs Fixed Effects Panel Regressions and Hypothesis Tests.
+    Runs Fixed Effects Panel Regressions for the 'War as Variance Amplifier' thesis.
     """
 
     def __init__(self, df: pd.DataFrame):
         self.df = df.copy()
-        # Set index for PanelOLS
+        # Ensure MultiIndex for PanelOLS
         if 'ISO3' in self.df.columns and 'Year' in self.df.columns:
             self.df = self.df.set_index(['ISO3', 'Year'])
 
-    def run_baseline_model(self):
+    def run_horse_race_model(self):
         """
-        Model 1: Baseline Impact of War on Growth
-        Equation: Growth_it = beta * War_Binary_it + Controls + alpha_i + delta_t + epsilon_it
+        The Core Tension Test: Institutions (Income Group) vs. Volatility (XR/Inflation).
+        Model: Growth ~ War + War*LIC + War*XR_Vol + Controls
         """
-        logger.info("Running Baseline Model...")
+        logger.info("Running Horse Race (Institutions vs Volatility)...")
 
-        exog_vars = ['War_Binary', 'War_Intensity', 'Trade_Openness', 'Govt_Expenditure_GDP', 'Log_GDP_PC']
-        # Add constant
-        exog_vars = [v for v in exog_vars if v in self.df.columns]
+        # Ensure interactions exist (created in data_processing, but safe check)
+        # War_X_LIC, War_X_XR_Vol
 
-        # Check for missing values in exog or endog
-        model_data = self.df.dropna(subset=['GDP_Growth'] + exog_vars)
+        exog_vars = ['War_Binary', 'War_X_LIC', 'War_X_XR_Vol', 'Trade_Openness', 'Log_GDP_PC']
+        # Add basic volatility if needed to control for level effects?
+        # Usually: Y = Beta1*D + Beta2*D*M + Beta3*M. Interaction requires main effect of M.
+        # Income_Group_Low is time-invariant, absorbed by FE.
+        exog_vars += ['XR_Volatility']
 
-        # PanelOLS with Entity and Time Effects
-        mod = PanelOLS(model_data['GDP_Growth'], model_data[exog_vars], entity_effects=True, time_effects=True, drop_absorbed=True)
-        res = mod.fit(cov_type='clustered', cluster_entity=True)
-
-        return res
-
-    def run_currency_channel_model(self):
-        """
-        Model 6: Currency Instability Channel
-        Hypothesis: Currency volatility amplifies the growth penalty of war.
-        Growth ~ War_Binary + XR_Volatility + War_Binary * XR_Volatility + Controls
-        """
-        logger.info("Running Currency Channel Model...")
-
-        # Interaction
-        if 'War_X_XR_Vol' not in self.df.columns:
-            # Handle NaNs in XR_Volatility (fill with 0 or mean?) - PanelOLS handles dropping
-            self.df['War_X_XR_Vol'] = self.df['War_Binary'] * self.df['XR_Volatility']
-
-        exog_vars = ['War_Binary', 'XR_Volatility', 'War_X_XR_Vol', 'Trade_Openness', 'Log_GDP_PC']
         exog_vars = [v for v in exog_vars if v in self.df.columns]
 
         model_data = self.df.dropna(subset=['GDP_Growth'] + exog_vars)
 
-        mod = PanelOLS(model_data['GDP_Growth'], model_data[exog_vars], entity_effects=True, time_effects=True, drop_absorbed=True)
-        res = mod.fit(cov_type='clustered', cluster_entity=True)
-
-        return res
-
-    def run_heterogeneity_model(self):
-        """
-        Model 2: Heterogeneity by Income Group
-        Interaction: War_Binary * Income_Group (Categorical)
-        """
-        logger.info("Running Heterogeneity Model...")
-
-        # Create Dummy Interactions manually if needed, or use formula if supported (PanelOLS formula is distinct)
-        # We'll create dummies for Income Groups and interact.
-
-        # We need to drop one base group (e.g., High Income)
-        # But Income_Group is a string column.
-
-        # Create dummies
-        # Reset index to access columns easily
-        df_reset = self.df.reset_index()
-
-        # One-hot encode Income Group
-        dummies = pd.get_dummies(df_reset['Income_Group'], prefix='Income')
-        df_reset = pd.concat([df_reset, dummies], axis=1)
-
-        # Interaction terms
-        interaction_cols = []
-        for col in dummies.columns:
-            inter_col = f'War_X_{col}'
-            df_reset[inter_col] = df_reset['War_Binary'] * df_reset[col]
-            interaction_cols.append(inter_col)
-
-        # Set index back
-        model_df = df_reset.set_index(['ISO3', 'Year'])
-
-        base_vars = ['War_Intensity', 'Trade_Openness', 'Log_GDP_PC']
-        # Include interactions, drop base dummy interaction to avoid collinearity if War_Binary is included?
-        # Actually, if we include War_Binary, we should drop one interaction.
-        # Let's include all interactions and drop War_Binary (or vice versa).
-        # Common approach: War_Binary + War_Binary * Low_Income + War_Binary * Upper_Middle... (High Income is base)
-
-        # Identify groups
-        # Groups: 'High income', 'Low income', 'Lower middle income', 'Upper middle income'
-        # Base: High income.
-
-        # Use all interactions to show effect per group, remove War_Binary to avoid perfect collinearity
-        # Growth ~ War_High + War_Low + ... + Controls
-
-        exog_vars = interaction_cols + base_vars
-        exog_vars = [v for v in exog_vars if v in model_df.columns]
-
-        model_data = model_df.dropna(subset=['GDP_Growth'] + exog_vars)
-
-        # Check rank=False to proceed if some groups have no wars (all zeros)
         mod = PanelOLS(model_data['GDP_Growth'], model_data[exog_vars], entity_effects=True, time_effects=True, drop_absorbed=True, check_rank=False)
         res = mod.fit(cov_type='clustered', cluster_entity=True)
-
         return res
 
-    def run_recovery_model(self):
+    def run_hierarchy_test(self):
         """
-        Model 3: Recovery Dynamics (Lags)
+        Stepwise regression to establish Mechanism Hierarchy.
+        Returns a dictionary of results for comparison.
         """
-        logger.info("Running Recovery Model...")
+        logger.info("Running Mechanism Hierarchy Test...")
+        results = {}
 
-        lags = [c for c in self.df.columns if 'War_Binary_lag' in c]
-        controls = ['Trade_Openness', 'Log_GDP_PC']
-        exog_vars = ['War_Binary'] + lags + controls
+        # Base Controls
+        controls = ['Log_GDP_PC', 'Govt_Expenditure_GDP']
+        controls = [c for c in controls if c in self.df.columns]
+
+        # Step 0: Baseline (War Only)
+        vars_0 = ['War_Binary'] + controls
+        data_0 = self.df.dropna(subset=['GDP_Growth'] + vars_0)
+        res_0 = PanelOLS(data_0['GDP_Growth'], data_0[vars_0], entity_effects=True, time_effects=True).fit(cov_type='clustered', cluster_entity=True)
+        results['Step0_Baseline'] = res_0
+
+        # Step 1: + Upstream (FX Volatility)
+        # We include main effect XR_Volatility. Interaction is for heterogeneity, here we test mediation/mechanism.
+        # If War affects Growth VIA FX Volatility, adding FX Volatility should attenuate War coefficient.
+        vars_1 = vars_0 + ['XR_Volatility']
+        vars_1 = [v for v in vars_1 if v in self.df.columns]
+        data_1 = self.df.dropna(subset=['GDP_Growth'] + vars_1)
+        res_1 = PanelOLS(data_1['GDP_Growth'], data_1[vars_1], entity_effects=True, time_effects=True).fit(cov_type='clustered', cluster_entity=True)
+        results['Step1_Add_FX'] = res_1
+
+        # Step 2: + Intermediate (Trade/Food)
+        # Using High_Food_Import_Dep or Trade_Volatility
+        # Let's use Trade_Volatility if available, or Food_Imports_Pct
+        trade_var = 'Trade_Volatility' if 'Trade_Volatility' in self.df.columns else 'Food_Imports_Pct'
+        vars_2 = vars_1 + [trade_var]
+        vars_2 = [v for v in vars_2 if v in self.df.columns]
+        data_2 = self.df.dropna(subset=['GDP_Growth'] + vars_2)
+        res_2 = PanelOLS(data_2['GDP_Growth'], data_2[vars_2], entity_effects=True, time_effects=True).fit(cov_type='clustered', cluster_entity=True)
+        results['Step2_Add_Trade'] = res_2
+
+        # Step 3: + Downstream (FDI)
+        # FDI Inflows
+        fdi_var = 'FDI_Inflows_GDP'
+        vars_3 = vars_2 + [fdi_var]
+        vars_3 = [v for v in vars_3 if v in self.df.columns]
+        data_3 = self.df.dropna(subset=['GDP_Growth'] + vars_3)
+        res_3 = PanelOLS(data_3['GDP_Growth'], data_3[vars_3], entity_effects=True, time_effects=True).fit(cov_type='clustered', cluster_entity=True)
+        results['Step3_Add_FDI'] = res_3
+
+        return results
+
+    def run_event_study(self):
+        """
+        Event Study with Leads and Lags.
+        Lags: t-5 to t-1 (Leads in regression terms, anticipating war) -> We test Granger causality / parallel trends.
+        Lags: t+1 to t+5 (Lags in regression terms, post war).
+        Currently we only have 'War_Binary'. We need to construct event dummies.
+        Since that's complex to do on the fly, we will use the existing Lags constructed in data_processing (lag1, lag2, lag3).
+        And we will construct Leads here if possible or skip leads and focus on lag dynamics (persistence).
+        """
+        logger.info("Running Event Study (Lags only)...")
+
+        # Use available lags
+        lags = [c for c in self.df.columns if 'War_Binary_lag' in c] # lag1, lag2, lag3
+        # Baseline War_Binary (t=0)
+
+        exog_vars = ['War_Binary'] + lags + ['Cumulative_Conflict_10y', 'Log_GDP_PC', 'Trade_Openness']
         exog_vars = [v for v in exog_vars if v in self.df.columns]
 
         model_data = self.df.dropna(subset=['GDP_Growth'] + exog_vars)
@@ -136,81 +117,54 @@ class EconometricModeler:
 
         return res
 
-    def run_trade_channel_model(self):
+    def run_heterogeneity_models(self):
         """
-        Model 4: Trade Transmission Channel
-        Hypothesis: High food import dependency exacerbates war impact.
-        Growth ~ War_Binary + Food_Imports_Pct + War_Binary * Food_Imports_Pct + Controls
+        Runs the two heterogeneity dimensions: Food and Income.
         """
-        logger.info("Running Trade Channel Model...")
+        logger.info("Running Heterogeneity Models...")
+        results = {}
 
-        # Interaction
-        # We need to explicitly create the interaction column if not present
-        if 'War_X_Food_Imp' not in self.df.columns:
-             self.df['War_X_Food_Imp'] = self.df['War_Binary'] * self.df['Food_Imports_Pct']
+        # Model A: Food Import Dependence
+        # Interaction: War * High_Food_Import_Dep
+        # Main effects: War, High_Food_Import_Dep
+        vars_a = ['War_Binary', 'War_X_HighFoodImp', 'High_Food_Import_Dep', 'Log_GDP_PC']
+        vars_a = [v for v in vars_a if v in self.df.columns]
+        data_a = self.df.dropna(subset=['GDP_Growth'] + vars_a)
+        res_a = PanelOLS(data_a['GDP_Growth'], data_a[vars_a], entity_effects=True, time_effects=True, drop_absorbed=True, check_rank=False).fit(cov_type='clustered', cluster_entity=True)
+        results['Heterogeneity_Food'] = res_a
 
-        exog_vars = ['War_Binary', 'Food_Imports_Pct', 'War_X_Food_Imp', 'Trade_Openness', 'Log_GDP_PC']
-        exog_vars = [v for v in exog_vars if v in self.df.columns]
+        # Model B: Income Group
+        # Interaction: War * Low_Income
+        # Main effects: War (Income_Group_Low is absorbed by FE)
+        vars_b = ['War_Binary', 'War_X_LIC', 'Log_GDP_PC']
+        vars_b = [v for v in vars_b if v in self.df.columns]
+        data_b = self.df.dropna(subset=['GDP_Growth'] + vars_b)
+        res_b = PanelOLS(data_b['GDP_Growth'], data_b[vars_b], entity_effects=True, time_effects=True, drop_absorbed=True, check_rank=False).fit(cov_type='clustered', cluster_entity=True)
+        results['Heterogeneity_Income'] = res_b
 
-        model_data = self.df.dropna(subset=['GDP_Growth'] + exog_vars)
+        return results
 
-        mod = PanelOLS(model_data['GDP_Growth'], model_data[exog_vars], entity_effects=True, time_effects=True, drop_absorbed=True)
-        res = mod.fit(cov_type='clustered', cluster_entity=True)
-
-        return res
-
-    def run_spillover_model(self):
+    def save_results(self, all_results):
         """
-        Model 5: Global Spillover (Peaceful Countries Only)
-        Hypothesis: Global conflict intensity hurts peaceful countries with high food dependency.
-        Growth ~ Global_Conflict_Intensity * Food_Imports_Pct + Controls
-        """
-        logger.info("Running Spillover Model...")
-
-        # Filter for Non-War years
-        peace_df = self.df[self.df['War_Binary'] == 0].copy()
-
-        exog_vars = ['Spillover_Exposure', 'Global_Conflict_Intensity', 'Food_Imports_Pct', 'Trade_Openness', 'Log_GDP_PC']
-        exog_vars = [v for v in exog_vars if v in peace_df.columns]
-
-        # Ensure index
-        # PanelOLS needs MultiIndex. If we filtered, index might be preserved.
-
-        model_data = peace_df.dropna(subset=['GDP_Growth'] + exog_vars)
-
-        # Check if enough data
-        if model_data.empty:
-            logger.warning("Not enough data for Spillover Model.")
-            return None
-
-        mod = PanelOLS(model_data['GDP_Growth'], model_data[exog_vars], entity_effects=True, time_effects=True, drop_absorbed=True)
-        res = mod.fit(cov_type='clustered', cluster_entity=True)
-
-        return res
-
-    def save_results(self, results_dict):
-        """
-        Saves regression results to a text file and LaTeX.
+        Saves all results to txt and tex.
+        all_results: dict of result objects.
         """
         logger.info("Saving Econometric Results...")
 
         with open("ECONOMETRIC_RESULTS.txt", "w") as f:
-            for name, res in results_dict.items():
+            for name, res in all_results.items():
                 f.write(f"--- {name} ---\n")
                 f.write(str(res))
                 f.write("\n\n")
 
-        # Compare models table
-        # linearmodels.panel.compare
-        comparison = compare(results_dict)
+        # Create comparison table for Main Results
+        # Filter keys for the main table (Hierarchy steps or Horse Race)
+        main_keys = [k for k in all_results.keys() if 'Step' in k or 'Horse' in k]
+        main_dict = {k: all_results[k] for k in main_keys}
 
-        with open("REGRESSION_TABLE.tex", "w") as f:
-            # simple to_latex equivalent if available or manual
-            # linearmodels summary has as_latex()? No, straightforward access is usually via summary.
-            # compare object has summary.
-            f.write(comparison.summary.as_latex())
+        if main_dict:
+            comparison = compare(main_dict)
+            with open("REGRESSION_TABLE.tex", "w") as f:
+                f.write(comparison.summary.as_latex())
 
-        return comparison
-
-if __name__ == "__main__":
-    pass
+        return

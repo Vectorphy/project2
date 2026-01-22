@@ -1,58 +1,38 @@
 \begin{center}
-\begin{tabular}{lcccccc}
+\begin{tabular}{lccccc}
 \toprule
-                                  & \textbf{Baseline} & \textbf{Heterogeneity} & \textbf{Recovery} & \textbf{Trade\_Channel} & \textbf{Currency\_Channel} & \textbf{Spillover}  \\
+                                  & \textbf{Horse\_Race\_Institutions\_vs\_Volatility} & \textbf{Step0\_Baseline} & \textbf{Step1\_Add\_FX} & \textbf{Step2\_Add\_Trade} & \textbf{Step3\_Add\_FDI}  \\
 \midrule
-\textbf{Dep. Variable}            &    GDP\_Growth    &      GDP\_Growth       &    GDP\_Growth    &       GDP\_Growth       &        GDP\_Growth         &    GDP\_Growth      \\
-\textbf{Estimator}                &      PanelOLS     &        PanelOLS        &      PanelOLS     &         PanelOLS        &          PanelOLS          &      PanelOLS       \\
-\textbf{No. Observations}         &        7547       &          7547          &        6896       &           7547          &            6896            &        7216         \\
-\textbf{Cov. Est.}                &     Clustered     &       Clustered        &     Clustered     &        Clustered        &         Clustered          &     Clustered       \\
-\textbf{R-squared}                &       0.0204      &         0.0239         &       0.0187      &          0.0294         &           0.0177           &       0.0134        \\
-\textbf{R-Squared (Within)}       &       0.0104      &         0.0136         &       0.0003      &          0.0253         &          -0.0026           &       0.0069        \\
-\textbf{R-Squared (Between)}      &      -19.679      &        -19.923         &      -26.191      &         -10.098         &          -25.061           &      -4.4110        \\
-\textbf{R-Squared (Overall)}      &      -4.8929      &        -4.9513         &      -7.5223      &         -2.4956         &          -7.1994           &      -1.3100        \\
-\textbf{F-statistic}              &       30.376      &         22.282         &       21.108      &          44.157         &           23.958           &       23.717        \\
-\textbf{P-value (F-stat)}         &       0.0000      &         0.0000         &       0.0000      &          0.0000         &           0.0000           &       0.0000        \\
-\textbf{======================}   &    ============   &      ============      &    ============   &       ============      &        ============        &    ============     \\
-\textbf{War\_Binary}              &      -3.3495      &                        &      -3.7408      &          0.5133         &          -3.1750           &                     \\
-\textbf{ }                        &     (-3.2652)     &                        &     (-3.3418)     &         (0.4036)        &         (-3.7813)          &                     \\
-\textbf{War\_Intensity}           &      -0.4008      &        -0.4309         &                   &                         &                            &                     \\
-\textbf{ }                        &     (-1.4085)     &       (-1.4782)        &                   &                         &                            &                     \\
-\textbf{Trade\_Openness}          &       0.0025      &         0.0027         &       0.0038      &          0.0010         &           0.0040           &       0.0033        \\
-\textbf{ }                        &      (0.5749)     &        (0.6093)        &      (0.8431)     &         (0.2173)        &          (0.8786)          &      (0.6718)       \\
-\textbf{Govt\_Expenditure\_GDP}   &       0.0108      &                        &                   &                         &                            &                     \\
-\textbf{ }                        &      (1.6966)     &                        &                   &                         &                            &                     \\
-\textbf{Log\_GDP\_PC}             &       2.2346      &         2.2767         &       2.6228      &          1.9761         &           2.5757           &       1.5735        \\
-\textbf{ }                        &      (2.1514)     &        (2.1692)        &      (2.1071)     &         (1.9012)        &          (2.0927)          &      (1.4997)       \\
-\textbf{War\_X\_Income\_HIC}      &                   &        -1.0780         &                   &                         &                            &                     \\
-\textbf{ }                        &                   &       (-1.0943)        &                   &                         &                            &                     \\
-\textbf{War\_X\_Income\_INX}      &                   &        -1.3052         &                   &                         &                            &                     \\
-\textbf{ }                        &                   &       (-1.1075)        &                   &                         &                            &                     \\
-\textbf{War\_X\_Income\_LIC}      &                   &        -6.4897         &                   &                         &                            &                     \\
-\textbf{ }                        &                   &       (-2.5403)        &                   &                         &                            &                     \\
-\textbf{War\_X\_Income\_LMC}      &                   &        -1.3629         &                   &                         &                            &                     \\
-\textbf{ }                        &                   &       (-1.5940)        &                   &                         &                            &                     \\
-\textbf{War\_X\_Income\_UMC}      &                   &        -4.3612         &                   &                         &                            &                     \\
-\textbf{ }                        &                   &       (-1.6126)        &                   &                         &                            &                     \\
-\textbf{War\_Binary\_lag1}        &                   &                        &       0.1282      &                         &                            &                     \\
-\textbf{ }                        &                   &                        &      (0.1504)     &                         &                            &                     \\
-\textbf{War\_Binary\_lag2}        &                   &                        &       0.7634      &                         &                            &                     \\
-\textbf{ }                        &                   &                        &      (0.9281)     &                         &                            &                     \\
-\textbf{War\_Binary\_lag3}        &                   &                        &       0.4688      &                         &                            &                     \\
-\textbf{ }                        &                   &                        &      (0.8174)     &                         &                            &                     \\
-\textbf{Food\_Imports\_Pct}       &                   &                        &                   &         -0.1383         &                            &      -0.1428        \\
-\textbf{ }                        &                   &                        &                   &        (-4.3219)        &                            &     (-4.2799)       \\
-\textbf{War\_X\_Food\_Imp}        &                   &                        &                   &         -0.2507         &                            &                     \\
-\textbf{ }                        &                   &                        &                   &        (-2.4449)        &                            &                     \\
-\textbf{XR\_Volatility}           &                   &                        &                   &                         &         2.736e-07          &                     \\
-\textbf{ }                        &                   &                        &                   &                         &          (5.2097)          &                     \\
-\textbf{War\_X\_XR\_Vol}          &                   &                        &                   &                         &          -0.0222           &                     \\
-\textbf{ }                        &                   &                        &                   &                         &         (-1.9578)          &                     \\
-\textbf{Spillover\_Exposure}      &                   &                        &                   &                         &                            &      -0.0010        \\
-\textbf{ }                        &                   &                        &                   &                         &                            &     (-1.2366)       \\
-\textbf{========================} &   ==============  &     ==============     &   ==============  &      ==============     &       ==============       &   ==============    \\
-\textbf{Effects}                  &       Entity      &         Entity         &       Entity      &          Entity         &           Entity           &       Entity        \\
-\textbf{}                         &        Time       &          Time          &        Time       &           Time          &            Time            &        Time         \\
+\textbf{Dep. Variable}            &                    GDP\_Growth                     &       GDP\_Growth        &       GDP\_Growth       &        GDP\_Growth         &       GDP\_Growth         \\
+\textbf{Estimator}                &                      PanelOLS                      &         PanelOLS         &         PanelOLS        &          PanelOLS          &         PanelOLS          \\
+\textbf{No. Observations}         &                        4765                        &           5416           &           4765          &            4765            &           4765            \\
+\textbf{Cov. Est.}                &                     Clustered                      &        Clustered         &        Clustered        &         Clustered          &        Clustered          \\
+\textbf{R-squared}                &                       0.0313                       &          0.0221          &          0.0326         &           0.0333           &          0.0347           \\
+\textbf{R-Squared (Within)}       &                       0.0040                       &          0.0010          &          0.0099         &           0.0100           &          0.0091           \\
+\textbf{R-Squared (Between)}      &                      -128.69                       &         -64.344          &         -123.35         &          -123.16           &         -127.69           \\
+\textbf{R-Squared (Overall)}      &                      -41.611                       &         -20.882          &         -39.878         &          -39.815           &         -41.281           \\
+\textbf{F-statistic}              &                       29.242                       &          39.002          &          38.129         &           31.136           &          27.084           \\
+\textbf{P-value (F-stat)}         &                       0.0000                       &          0.0000          &          0.0000         &           0.0000           &          0.0000           \\
+\textbf{======================}   &                    ============                    &       ============       &       ============      &        ============        &       ============        \\
+\textbf{War\_Binary}              &                      -0.5790                       &         -1.2657          &         -0.5740         &          -0.5625           &         -0.5730           \\
+\textbf{ }                        &                     (-0.5715)                      &        (-1.5448)         &        (-0.5858)        &         (-0.5753)          &        (-0.5869)          \\
+\textbf{War\_X\_XR\_Vol}          &                      -0.2991                       &                          &                         &                            &                           \\
+\textbf{ }                        &                     (-0.4500)                      &                          &                         &                            &                           \\
+\textbf{Trade\_Openness}          &                       0.0078                       &                          &                         &                            &                           \\
+\textbf{ }                        &                      (1.2093)                      &                          &                         &                            &                           \\
+\textbf{Log\_GDP\_PC}             &                       5.1931                       &          4.0124          &          5.3886         &           5.3994           &          5.4890           \\
+\textbf{ }                        &                      (3.2575)                      &         (3.2813)         &         (3.5526)        &          (3.5710)          &         (3.6454)          \\
+\textbf{XR\_Volatility}           &                     4.321e-07                      &                          &        2.497e-07        &         2.367e-07          &        2.443e-07          \\
+\textbf{ }                        &                      (6.3906)                      &                          &         (2.1008)        &          (2.0083)          &         (2.0793)          \\
+\textbf{Govt\_Expenditure\_GDP}   &                                                    &         -0.0534          &         -0.0708         &          -0.0708           &         -0.0698           \\
+\textbf{ }                        &                                                    &        (-0.9803)         &        (-1.3557)        &         (-1.3589)          &        (-1.3441)          \\
+\textbf{Trade\_Volatility}        &                                                    &                          &                         &          -0.0138           &         -0.0151           \\
+\textbf{ }                        &                                                    &                          &                         &         (-1.1511)          &        (-1.4444)          \\
+\textbf{FDI\_Inflows\_GDP}        &                                                    &                          &                         &                            &         -0.0028           \\
+\textbf{ }                        &                                                    &                          &                         &                            &        (-2.5491)          \\
+\textbf{========================} &                   ==============                   &      ==============      &      ==============     &       ==============       &      ==============       \\
+\textbf{Effects}                  &                       Entity                       &          Entity          &          Entity         &           Entity           &          Entity           \\
+\textbf{}                         &                        Time                        &           Time           &           Time          &            Time            &           Time            \\
 \bottomrule
 \end{tabular}
 %\caption{Model Comparison}

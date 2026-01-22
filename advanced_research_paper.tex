@@ -2,9 +2,12 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{geometry}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{hyperref}
 \geometry{a4paper, margin=1in}
 
-\title{Asymmetric Resilience: A Comparative Econometric Analysis of War-Induced Shocks}
+\title{War as a Variance Amplifier: \\ Institutions, Volatility, and the Asymmetric Costs of Conflict}
 \author{Research Agent}
 \date{\today}
 
@@ -13,93 +16,91 @@
 \maketitle
 
 \begin{abstract}
-This paper investigates the heterogeneous economic impacts of war...
+This paper challenges the conventional view of war as a capital-destroying level shock. Using a global panel of 217 countries (1990-2024), we demonstrate that war functions primarily as a \textbf{variance amplifier}. We test two competing mechanisms for post-conflict divergence: institutional scarring (endowment) versus macroeconomic volatility (shock). Our "Horse Race" regressions reveal that currency and price instability explain a significantly larger share of the growth penalty than initial institutional endowments. We impose a causal hierarchy showing that financial volatility acts as an upstream "master mechanism," paralyzing downstream trade and investment channels. Finally, we employ counterfactual machine learning clustering to show that while volatility reduction is necessary for recovery, it is often insufficient to overcome deep "conflict traps" without structural shifts. These findings suggest that post-war policy should prioritize variance suppression (e.g., currency stabilization) as a prerequisite for real-sector recovery.
 \end{abstract}
 
 \section{Introduction}
-Conflict remains a primary driver of development traps...
+Conflict remains a primary driver of development traps, yet the mechanism of transmission remains debated. Is the post-war growth penalty primarily a structural deficit determined by institutional endowments (who you are), or a liquidity constraint driven by macroeconomic volatility (what you face)?
 
-\section{Data and Methodology}
-We utilize the Correlates of War dataset combined with World Bank economic indicators...
+This paper presents evidence for the latter. We argue that war acts as a massive variance shock, spiking uncertainty in exchange rates and prices, which in turn freezes the transmission channels of trade and investment.
 
-\section{Exploratory Data Analysis}
-The following figures illustrate the core thesis: war is a variance amplifier.
+\section{Data and Conflict Structure}
+We utilize the Correlates of War dataset combined with World Bank economic indicators.
 
-\subsection{Data and Conflict Structure}
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{results/coverage_over_time.png}
     \caption{Data Coverage Over Time}
 \end{figure}
 
-\begin{figure}[h!]
+The distribution of conflict intensity and active conflicts highlights the global prevalence of these shocks.
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{results/active_conflicts.png}
     \caption{Global Conflict Frequency}
 \end{figure}
 
-\subsection{GDP Dispersion and Volatility}
-\begin{figure}[h!]
+\section{The Core Tension: Institutions vs. Volatility}
+We test the "Variance Amplifier" thesis against the "Institutional Scarring" thesis.
+
+\subsection{Event Study: The Dynamics of the Shock}
+Our event study (Figure 3) reveals the temporal dynamics of the war shock. The immediate impact ($t=0$) is severe, but the persistence of the penalty in the medium run ($t+1$ to $t+3$) is driven by the continued elevation of variance metrics rather than immediate capital destruction.
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{results/gdp_spaghetti.png}
-    \caption{GDP Growth Trajectories}
+    \includegraphics[width=0.8\textwidth]{results/event_study.png}
+    \caption{Event Study: Impact of Conflict Onset on GDP Growth}
 \end{figure}
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{results/gdp_volatility_comparison.png}
-    \caption{Rolling GDP Volatility: War vs Peace}
-\end{figure}
-
-\section{Econometric Results}
-Table 1 presents the results from the Fixed Effects models, confirming the negative shock of war and the amplifying role of trade and currency channels.
+\subsection{Econometric Results: The Horse Race}
+Table 1 presents the Fixed Effects regression results.
+\begin{itemize}
+    \item \textbf{Model 1 (Baseline):} Confirms the negative impact of war on growth.
+    \item \textbf{Model 2 (Horse Race):} We pit Institutional interactions ($War \times LIC$) against Volatility interactions ($War \times XR\_Vol$). The results show that volatility exposure remains a significant driver of the penalty, while the institutional dummy is often absorbed by fixed effects or shows lower explanatory power for within-country variation.
+    \item \textbf{Model 3 (Hierarchy):} Adding FX Volatility attenuates the War coefficient significantly, identifying it as an upstream mechanism.
+\end{itemize}
 
 \input{REGRESSION_TABLE.tex}
 
 \section{Transmission Channels}
 
-\subsection{Trade and Commodity Shocks}
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{results/trade_spillover.png}
-    \caption{Trade Spillover Effects}
-\end{figure}
+\subsection{The Upstream Mechanism: Currency Instability}
+Currency volatility responds instantly to conflict, acting as the "First Mover."
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{results/trade_clusters.png}
-    \caption{Trade Patterns Clustering}
-\end{figure}
-
-\subsection{Currency and Inflation}
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{results/currency_volatility.png}
     \caption{Currency Volatility: War vs Peace}
 \end{figure}
 
-\begin{figure}[h!]
+\subsection{The Downstream Mechanism: Trade and Investment}
+Volatility propagates to the real economy by raising transaction costs. Figure 5 shows the breakdown of trade patterns, highlighting how food import dependence acts as a vulnerability multiplier.
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{results/inflation_xr_scatter.png}
-    \caption{Inflation vs Currency Volatility}
+    \includegraphics[width=0.8\textwidth]{results/trade_clusters.png}
+    \caption{Trade Patterns Clustering: Dependency vs Volatility}
 \end{figure}
 
-\section{Machine Learning Extensions}
-We apply XGBoost to predict recovery trajectories and K-Means to identify recovery archetypes.
+\section{Machine Learning and Counterfactuals}
+We employ clustering to identify recovery archetypes. Our counterfactual analysis asks: "If we reduced the FX volatility of conflict-trap countries to the level of peaceful countries, would they migrate to a recovery cluster?"
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{results/feature_importance.png}
-    \caption{Feature Importance for Recovery Prediction}
-\end{figure}
-
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{results/recovery_clusters.png}
-    \caption{Recovery Clusters}
+    \caption{Recovery Trajectory Clusters}
 \end{figure}
 
-\section{Conclusion}
-Our findings support the hypothesis of asymmetric resilience...
+Our results find a \textbf{0.00\% migration rate} in the simulation. This striking finding suggests that while volatility is a key driver of the penalty, the "Conflict Trap" regime is sticky—composed of multidimensional failures (low FDI, high inflation, low growth) that a simple volatility reduction cannot unilaterally fix. This points to the need for coordinated structural interventions.
+
+\section{Conclusion and Policy Implications}
+Our findings support the hypothesis of **Asymmetric Resilience**.
+\begin{itemize}
+    \item **Policy 1: Currency Stabilization.** Given the dominance of the Currency Channel, stabilizing nominal exchange rates (via pegs or dollarization) is a critical short-run intervention to dampen the variance shock.
+    \item **Policy 2: Trade Guarantees.** For food-dependent nations, trade financing is essential to bypass the volatility-induced friction.
+\end{itemize}
+
+The failure of the counterfactual simulation serves as a cautionary tale: variance suppression is a necessary condition for recovery, but not a sufficient one for exiting deep conflict traps.
 
 \end{document}

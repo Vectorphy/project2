@@ -109,7 +109,9 @@ class DataProcessor:
 
         # 2. Lags (t-1 to t-3)
         lags = [1, 2, 3]
-        lag_cols = ['War_Binary', 'War_Intensity', 'GDP_Growth', 'Inflation']
+        lag_cols = ['War_Binary', 'War_Intensity', 'GDP_Growth', 'Inflation', 'FDI_Inflows_GDP']
+        # Check if columns exist before creating lags
+        lag_cols = [c for c in lag_cols if c in self.full_df.columns]
 
         for col in lag_cols:
             for l in lags:
@@ -169,7 +171,22 @@ class DataProcessor:
                 lambda x: x.rolling(window=5, min_periods=3).std()
             )
 
-        # 6. Recovery Flags
+        # 6. Heterogeneity Dimensions
+        # Dimension 1: Food Import Dependence (>20%)
+        if 'Food_Imports_Pct' in self.full_df.columns:
+            self.full_df['High_Food_Import_Dep'] = (self.full_df['Food_Imports_Pct'] > 20).astype(int)
+            self.full_df['War_X_HighFoodImp'] = self.full_df['War_Binary'] * self.full_df['High_Food_Import_Dep']
+
+        # Dimension 2: Income Group (Low Income)
+        # Create dummy for Low Income
+        self.full_df['Income_Group_Low'] = self.full_df['Income_Group'].apply(lambda x: 1 if x == 'Low income' else 0)
+        self.full_df['War_X_LIC'] = self.full_df['War_Binary'] * self.full_df['Income_Group_Low']
+
+        # Interaction: War * Volatility (Using XR Volatility as primary proxy for "Variance")
+        if 'XR_Volatility' in self.full_df.columns:
+            self.full_df['War_X_XR_Vol'] = self.full_df['War_Binary'] * self.full_df['XR_Volatility']
+
+        # 7. Recovery Flags
         # Post-Conflict: If t-1 was War and t is Peace.
         # We need to detect switch.
         self.full_df['War_Prev'] = self.full_df.groupby('ISO3')['War_Binary'].shift(1).fillna(0)
