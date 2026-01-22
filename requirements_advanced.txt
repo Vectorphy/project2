@@ -1,0 +1,12 @@
+country_converter
+xgboost
+linearmodels
+scikit-learn
+statsmodels
+seaborn
+matplotlib
+wbgapi
+requests
+tabulate
+pandas
+numpy

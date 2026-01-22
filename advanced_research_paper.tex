@@ -1,0 +1,105 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\title{Asymmetric Resilience: A Comparative Econometric Analysis of War-Induced Shocks}
+\author{Research Agent}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This paper investigates the heterogeneous economic impacts of war...
+\end{abstract}
+
+\section{Introduction}
+Conflict remains a primary driver of development traps...
+
+\section{Data and Methodology}
+We utilize the Correlates of War dataset combined with World Bank economic indicators...
+
+\section{Exploratory Data Analysis}
+The following figures illustrate the core thesis: war is a variance amplifier.
+
+\subsection{Data and Conflict Structure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/coverage_over_time.png}
+    \caption{Data Coverage Over Time}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/active_conflicts.png}
+    \caption{Global Conflict Frequency}
+\end{figure}
+
+\subsection{GDP Dispersion and Volatility}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/gdp_spaghetti.png}
+    \caption{GDP Growth Trajectories}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/gdp_volatility_comparison.png}
+    \caption{Rolling GDP Volatility: War vs Peace}
+\end{figure}
+
+\section{Econometric Results}
+Table 1 presents the results from the Fixed Effects models, confirming the negative shock of war and the amplifying role of trade and currency channels.
+
+\input{REGRESSION_TABLE.tex}
+
+\section{Transmission Channels}
+
+\subsection{Trade and Commodity Shocks}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/trade_spillover.png}
+    \caption{Trade Spillover Effects}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/trade_clusters.png}
+    \caption{Trade Patterns Clustering}
+\end{figure}
+
+\subsection{Currency and Inflation}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/currency_volatility.png}
+    \caption{Currency Volatility: War vs Peace}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/inflation_xr_scatter.png}
+    \caption{Inflation vs Currency Volatility}
+\end{figure}
+
+\section{Machine Learning Extensions}
+We apply XGBoost to predict recovery trajectories and K-Means to identify recovery archetypes.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/feature_importance.png}
+    \caption{Feature Importance for Recovery Prediction}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{results/recovery_clusters.png}
+    \caption{Recovery Clusters}
+\end{figure}
+
+\section{Conclusion}
+Our findings support the hypothesis of asymmetric resilience...
+
+\end{document}
